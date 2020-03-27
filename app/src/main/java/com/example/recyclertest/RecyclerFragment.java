@@ -69,7 +69,7 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
 
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.setAdapter(adapter);
-
+        mRecycler.addItemDecoration(new CardDecoration());
         //adapter.addData(MockGenerator.generate(3),true);
 
         adapter.setListener(mListener);
