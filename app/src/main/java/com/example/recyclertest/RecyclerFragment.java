@@ -1,5 +1,6 @@
 package com.example.recyclertest;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -29,12 +30,23 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View mErrorView;
 
+    private ContactsAdapter.OnItemClickListener mListener;
+
     private Random mRandom = new Random();
 
     public static RecyclerFragment newInstance() {
        return new RecyclerFragment();
     }
-    
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if(context instanceof ContactsAdapter.OnItemClickListener){
+            mListener = (ContactsAdapter.OnItemClickListener) context;
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,6 +71,8 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
         mRecycler.setAdapter(adapter);
 
         //adapter.addData(MockGenerator.generate(3),true);
+
+        adapter.setListener(mListener);
 
     }
 
@@ -123,5 +137,11 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onDetach() {
+        mListener = null;
+        super.onDetach();
     }
 }

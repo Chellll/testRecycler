@@ -17,6 +17,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<MockHolder> {
 
     private Cursor mCursor;
 
+    private OnItemClickListener mListener;
+
     @NonNull
     @Override
     public MockHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -32,6 +34,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<MockHolder> {
             int id = mCursor.getInt(mCursor.getColumnIndex(ContactsContract.Contacts._ID));
 
             holder.bind(new Mock(name,id));
+            holder.setListener(mListener);
 
         }
     }
@@ -51,8 +54,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<MockHolder> {
         }
     }
 
+    public void setListener(OnItemClickListener listener) {
+        mListener = listener;
+    }
+
     public interface OnItemClickListener{
-        void OnItemClick();
+        void OnItemClick(String id);
     }
 
 }
