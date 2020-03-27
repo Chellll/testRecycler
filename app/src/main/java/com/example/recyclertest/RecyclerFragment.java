@@ -8,11 +8,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.recyclertest.mock.MockAdapter;
+import com.example.recyclertest.mock.MockGenerator;
 
 public class RecyclerFragment extends Fragment {
 
     private RecyclerView mRecycler;
+    private final MockAdapter adapter = new MockAdapter();
 
     public static RecyclerFragment newInstance() {
        return new RecyclerFragment();
@@ -29,5 +34,16 @@ public class RecyclerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mRecycler = view.findViewById(R.id.rv);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecycler.setAdapter(adapter);
+
+        adapter.addData(MockGenerator.generate(5));
+
     }
 }
