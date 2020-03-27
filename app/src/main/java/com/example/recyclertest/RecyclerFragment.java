@@ -22,6 +22,9 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
     private RecyclerView mRecycler;
     private final MockAdapter adapter = new MockAdapter();
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private View mErrorView;
+
+    private Random mRandom = new Random();
 
     public static RecyclerFragment newInstance() {
        return new RecyclerFragment();
@@ -39,6 +42,7 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
 
         mRecycler = view.findViewById(R.id.rv);
         mSwipeRefreshLayout = view.findViewById(R.id.refresher);
+        mErrorView = view.findViewById(R.id.error_view);
         mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
@@ -58,12 +62,32 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
         mSwipeRefreshLayout.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Random random = new Random();
-                adapter.addData(MockGenerator.generate(2), new Random().nextBoolean());
+
+                int count = mRandom.nextInt(4);
+
+                if(count == 0){
+                    showError();
+                }
+                else{
+                    showData(count);
+                }
+
+
                 if(mSwipeRefreshLayout.isRefreshing()){
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
             }
         }, 2000);
+    }
+
+    private void showError(){
+        mErrorView.setVisibility(View.VISIBLE);
+        mRecycler.setVisibility(View.GONE);
+    }
+
+    private void showData(int count){
+        adapter.addData(MockGenerator.generate(count), new Random().nextBoolean());
+        mErrorView.setVisibility(View.GONE);
+        mRecycler.setVisibility(View.VISIBLE);
     }
 }
