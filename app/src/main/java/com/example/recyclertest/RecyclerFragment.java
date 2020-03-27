@@ -1,6 +1,8 @@
 package com.example.recyclertest;
 
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -17,10 +22,10 @@ import com.example.recyclertest.mock.MockGenerator;
 
 import java.util.Random;
 
-public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView mRecycler;
-    private final MockAdapter adapter = new MockAdapter();
+    private final ContactsAdapter adapter = new ContactsAdapter();
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View mErrorView;
 
@@ -53,41 +58,70 @@ public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnR
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.setAdapter(adapter);
 
-        adapter.addData(MockGenerator.generate(3),true);
+        //adapter.addData(MockGenerator.generate(3),true);
 
     }
 
     @Override
     public void onRefresh() {
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+//        mSwipeRefreshLayout.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                int count = mRandom.nextInt(4);
+//
+//                if(count == 0){
+//                    showError();
+//                }
+//                else{
+//                    showData(count);
+//                }
+//
+//
+//                if(mSwipeRefreshLayout.isRefreshing()){
+//                    mSwipeRefreshLayout.setRefreshing(false);
+//                }
+//            }
+//        }, 2000);
 
-                int count = mRandom.nextInt(4);
+        getLoaderManager().restartLoader(0, null, this);
+    }
 
-                if(count == 0){
-                    showError();
-                }
-                else{
-                    showData(count);
-                }
+//    private void showError(){
+//        mErrorView.setVisibility(View.VISIBLE);
+//        mRecycler.setVisibility(View.GONE);
+//    }
+//
+//    private void showData(int count){
+//        adapter.addData(MockGenerator.generate(count), new Random().nextBoolean());
+//        mErrorView.setVisibility(View.GONE);
+//        mRecycler.setVisibility(View.VISIBLE);
+//    }
 
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        return new CursorLoader(getActivity(),
+                ContactsContract.Contacts.CONTENT_URI,
+                new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME},
+                null,
+                null,
+                ContactsContract.Contacts._ID
+        );
+    }
 
-                if(mSwipeRefreshLayout.isRefreshing()){
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+
+        if(mSwipeRefreshLayout.isRefreshing()){
                     mSwipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        }, 2000);
+        }
+
     }
 
-    private void showError(){
-        mErrorView.setVisibility(View.VISIBLE);
-        mRecycler.setVisibility(View.GONE);
-    }
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 
-    private void showData(int count){
-        adapter.addData(MockGenerator.generate(count), new Random().nextBoolean());
-        mErrorView.setVisibility(View.GONE);
-        mRecycler.setVisibility(View.VISIBLE);
     }
 }
