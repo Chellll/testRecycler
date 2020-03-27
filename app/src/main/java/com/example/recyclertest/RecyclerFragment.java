@@ -10,14 +10,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.recyclertest.mock.MockAdapter;
 import com.example.recyclertest.mock.MockGenerator;
 
-public class RecyclerFragment extends Fragment {
+import java.util.Random;
+
+public class RecyclerFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mRecycler;
     private final MockAdapter adapter = new MockAdapter();
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public static RecyclerFragment newInstance() {
        return new RecyclerFragment();
@@ -34,6 +38,8 @@ public class RecyclerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mRecycler = view.findViewById(R.id.rv);
+        mSwipeRefreshLayout = view.findViewById(R.id.refresher);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
     @Override
@@ -43,7 +49,21 @@ public class RecyclerFragment extends Fragment {
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.setAdapter(adapter);
 
-        adapter.addData(MockGenerator.generate(5));
+        adapter.addData(MockGenerator.generate(3),true);
 
+    }
+
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Random random = new Random();
+                adapter.addData(MockGenerator.generate(2), new Random().nextBoolean());
+                if(mSwipeRefreshLayout.isRefreshing()){
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        }, 2000);
     }
 }
